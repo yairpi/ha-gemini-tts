@@ -86,7 +86,7 @@ class GeminiTTSEntity(TextToSpeechEntity):
         """Return supported options."""
         return [CONF_VOICE, CONF_STYLE_PROMPT]
 
-    async def async_get_supported_voices(self, language: str) -> list[Voice] | None:
+    def get_supported_voices(self, language: str) -> list[Voice] | None:
         """Return list of supported voices for a language."""
         return [Voice(voice_id=v, name=v) for v in VOICES]
 
