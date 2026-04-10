@@ -97,8 +97,11 @@ class GeminiTTSEntity(TextToSpeechEntity):
         voice = options.get(CONF_VOICE, self._voice)
         style = options.get(CONF_STYLE_PROMPT, self._style_prompt)
 
-        # Build content with optional style prefix
-        content = f"{style}: {message}" if style else message
+        # Build content — must clearly instruct TTS to speak, not generate text
+        if style:
+            content = f"Say the following in a {style} voice: {message}"
+        else:
+            content = f"Say the following: {message}"
 
         _LOGGER.debug(
             "Generating TTS: model=%s, voice=%s, lang=%s, text=%s",
