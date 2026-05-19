@@ -9,13 +9,17 @@ CONF_LANGUAGE = "language"
 CONF_STYLE_PROMPT = "style_prompt"
 CONF_CACHE = "cache"
 
-DEFAULT_MODEL = "gemini-2.5-flash-preview-tts"
+DEFAULT_MODEL = "gemini-3.1-flash-tts-preview"
 DEFAULT_VOICE = "callirrhoe"
 DEFAULT_LANGUAGE = "he"
 DEFAULT_STYLE_PROMPT = ""
 DEFAULT_CACHE = True
 
+# Note: gemini-2.5-*-preview-tts return finish_reason=OTHER + empty content
+# on Hebrew input (Google-side regression). 3.1-flash-tts-preview works for
+# Hebrew. 2.5 entries kept for English-only deployments.
 MODELS = [
+    "gemini-3.1-flash-tts-preview",
     "gemini-2.5-flash-preview-tts",
     "gemini-2.5-pro-preview-tts",
 ]
