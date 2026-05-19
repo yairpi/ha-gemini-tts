@@ -119,7 +119,7 @@ class GeminiTTSEntity(TextToSpeechEntity):
                 or not response.candidates[0].content
                 or not response.candidates[0].content.parts
             ):
-                _LOGGER.error("Empty response from Gemini TTS")
+                self._log_empty_response(response, message, voice, language)
                 return (None, None)
 
             audio_pcm = response.candidates[0].content.parts[0].inline_data.data
@@ -131,6 +131,34 @@ class GeminiTTSEntity(TextToSpeechEntity):
         except Exception as e:
             _LOGGER.error("Gemini TTS failed: %s", e)
             return (None, None)
+
+    def _log_empty_response(self, response, message: str, voice: str, language: str) -> None:
+        """JANE-163 diagnostic — dump every available field on empty-response."""
+        pf = getattr(response, "prompt_feedback", None)
+        block_reason = getattr(pf, "block_reason", None) if pf else None
+        prompt_safety = getattr(pf, "safety_ratings", None) if pf else None
+
+        cands = getattr(response, "candidates", None) or []
+        cand_summaries = []
+        for i, c in enumerate(cands):
+            cand_summaries.append({
+                "i": i,
+                "finish_reason": getattr(c, "finish_reason", None),
+                "finish_message": getattr(c, "finish_message", None),
+                "safety_ratings": getattr(c, "safety_ratings", None),
+                "content_present": getattr(c, "content", None) is not None,
+                "parts_count": len(getattr(getattr(c, "content", None), "parts", None) or []),
+            })
+
+        usage = getattr(response, "usage_metadata", None)
+        model_version = getattr(response, "model_version", None)
+
+        _LOGGER.error(
+            "Empty response from Gemini TTS | model=%s voice=%s lang=%s text=%r len=%d | "
+            "block_reason=%s prompt_safety=%s candidates_count=%d candidates=%s usage=%s model_version=%s",
+            self._model, voice, language, message, len(message),
+            block_reason, prompt_safety, len(cands), cand_summaries, usage, model_version,
+        )
 
     def _generate_audio(self, content: str, voice: str):
         """Call Gemini TTS API (sync, runs in executor)."""

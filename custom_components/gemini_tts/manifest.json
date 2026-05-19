@@ -1,7 +1,7 @@
 {
   "domain": "gemini_tts",
   "name": "Gemini Text-to-Speech",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "documentation": "https://github.com/yairpi165/ha-jane-voice",
   "dependencies": [],
   "codeowners": ["@yairpi165"],
