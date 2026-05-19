@@ -61,7 +61,8 @@ class GeminiTTSEntity(TextToSpeechEntity):
         self._style_prompt = options.get(CONF_STYLE_PROMPT, data.get(CONF_STYLE_PROMPT, DEFAULT_STYLE_PROMPT))
         self._cache_enabled = options.get(CONF_CACHE, data.get(CONF_CACHE, DEFAULT_CACHE))
 
-        self._client = genai.Client(api_key=self._api_key)
+        # Lazy init — avoid blocking SSL handshake on event loop
+        self._client = None
 
     @property
     def default_options(self) -> dict[str, Any]:
@@ -133,6 +134,8 @@ class GeminiTTSEntity(TextToSpeechEntity):
 
     def _generate_audio(self, content: str, voice: str):
         """Call Gemini TTS API (sync, runs in executor)."""
+        if self._client is None:
+            self._client = genai.Client(api_key=self._api_key)
         return self._client.models.generate_content(
             model=self._model,
             contents=content,
